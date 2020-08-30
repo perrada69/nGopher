@@ -1,6 +1,5 @@
 tilemap_init
-ld a,3
-		ld (OKNO),a
+
 		nextreg MMU3_6000_NR_53,5*2+1
         ld      hl,TILE_GFX_ADR
         ld      de,TILE_GFX_ADR+1
@@ -563,3 +562,33 @@ specialchar2
 	; HEX	00333300 03122130 03210030
 	; HEX	03210030 03122130 00333300
 	; HEX	00000000 00000000
+tilemapFont:    ds   16*32
+
+ConvertRomCharTo4bpp:
+        push    bc
+        ld      bc,$08FF
+.lineLoop:
+        ld      a,(hl)
+        inc     hl
+        push    hl
+        call    .convert8pixels
+        pop     hl
+        djnz    .lineLoop
+        pop     bc
+        ret
+.convert8pixels:
+        call    .convert4pixels
+.convert4pixels:
+        call    .convert2pixels
+.convert2pixels:
+        rlca
+        rlca
+        push    af
+        and     3
+        ld      hl,.pixelTable
+        add     hl,a
+        ldi
+        pop     af
+        ret
+.pixelTable:
+       DB      $00, $03, $30, $33
